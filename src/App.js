@@ -6,9 +6,6 @@ const imageUrls = [
   'elon-musk.png',
 ];
 
-
-
-
 function getRandomImage() {
   const index = Math.floor(Math.random() * imageUrls.length);
   return imageUrls[index];
@@ -20,8 +17,6 @@ function App() {
   const handleClick = () => {
     setImages(images.map(() => getRandomImage()));
   };
-
-
 
   return (
     
