@@ -1,0 +1,23 @@
+.container {
+  margin: auto;
+  width: 90%;
+  border: 3px solid black;
+  display: grid;
+}
+
+.container h1 {
+  text-align: center;
+}
+
+.grid {
+display: grid;
+grid-template-columns: repeat(6, 1fr);
+grid-template-rows: repeat(6, 1fr);
+grid-column-gap: 0px;
+grid-row-gap: 0px;
+} 
+
+.grid img {
+  height: 105px;
+  width: 240px;
+}
