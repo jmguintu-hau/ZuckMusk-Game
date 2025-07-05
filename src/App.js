@@ -4,114 +4,124 @@ import "./App.css";
 const imageUrls = ["mark-zuckerberg.png", "elon-musk.png"];
 
 function getRandomBoard() {
-  const images = [];
-  for (let i = 0; i < 36; i++) {
-    const index = Math.floor(Math.random() * imageUrls.length);
-    images.push(imageUrls[index]);
-  }
-  return images;
+    const images = [];
+    // 18 zuck
+    for (let i = 0; i < 18; i++) {
+        images.push(imageUrls[0]);
+    }
+
+    // 18 musk
+    for (let i = 0; i < 18; i++) {
+        images.push(imageUrls[1]);
+    }
+    
+    // shuffle
+    for (let i = images.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [images[i], images[j]] = [images[j], images[i]];
+    }
+    return images;
 }
 
 function App() {
-  const [board, setBoard] = useState(getRandomBoard());
-  const [revealed, setRevealed] = useState(Array(36).fill(false));
-  const [player1Choice, setPlayer1Choice] = useState(null);
-  const [player2Choice, setPlayer2Choice] = useState(null);
-  const [winner, setWinner] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState(1);
+const [board, setBoard] = useState(getRandomBoard());
+const [revealed, setRevealed] = useState(Array(36).fill(false));
+const [playerChoice, setPlayerChoice] = useState(null);
+const [winner, setWinner] = useState(null);
 
-  const handleClick = (index) => {
-    if (winner || revealed[index] || !player1Choice) return;
 
-    const currentChoice = currentPlayer === 1 ? player1Choice : player2Choice;
-    const currentImage =
-      currentChoice === "zuck" ? "mark-zuckerberg.png" : "elon-musk.png";
+const handleClick = (index) => {
+    if (winner || revealed[index] || !playerChoice) return;
+
+    const chosenImage =
+    playerChoice === "zuck" ? "mark-zuckerberg.png" : "elon-musk.png";
     const tileImage = board[index];
 
+  
     const newRevealed = [...revealed];
     newRevealed[index] = true;
     setRevealed(newRevealed);
 
-    if (tileImage !== currentImage) {
-      setTimeout(() => {
-        alert(`You lost! Player ${currentPlayer === 1 ? 2 : 1} wins!`);
-      }, 300);  
-      setWinner(
-        `Player ${currentPlayer} lost! Player ${currentPlayer === 1 ? 2 : 1} wins!`
-      );
-      return;
+    
+    // only allow revealing the player's side
+    if (tileImage !== chosenImage) {
+      alert(`You clicked the wrong image! Game over.`);
+      setWinner(`You lost! You clicked a ${tileImage.includes("zuck") ? "ZUCK" : "MUSK"} tile.`);
+      setRevealed(newRevealed.map(()=>true));
     }
 
+
+
+
+    // check if all chosen images are revealed
     const remaining = board
-      .map((img, i) => (img === currentImage ? i : null))
-      .filter((i) => i !== null && !newRevealed[i]);
+    .map((img, i) => (img === chosenImage ? i : null))
+    .filter((i) => i !== null && !newRevealed[i]);
 
     if (remaining.length === 0) {
-      setWinner(`Player ${currentPlayer} wins! Found all their images!`);
-      return;
+        setWinner(`Congratulations! You found all your ${playerChoice.toUpperCase()} tiles!`);
     }
+};
 
-    setCurrentPlayer(currentPlayer === 1 ? 2 : 1);
-  };
+function handleChoice(choice) {
+    setPlayerChoice(choice);
+}
 
-  function handleChoice(choice) {
-    setPlayer1Choice(choice);
-    setPlayer2Choice(choice === "zuck" ? "musk" : "zuck");
-    setCurrentPlayer(1);
-  }
-
-  function handleRestart() {
+function handleRestart() {
     setBoard(getRandomBoard());
     setRevealed(Array(36).fill(false));
-    setPlayer1Choice(null);
-    setPlayer2Choice(null);
+    setPlayerChoice(null);
     setWinner(null);
-    setCurrentPlayer(1);
-  }
+}
 
-  return (
-    <div className="container">
-      <h1>ZuckMusk Game!</h1>
-      {!player1Choice && (
-        <div className="choice-buttons">
-          <div className="player-choice-label">Player 1 choose character:</div>
-          <button onClick={() => handleChoice("zuck")}>Zuckerberg</button>
-          <button onClick={() => handleChoice("musk")}>Musk</button>
-        </div>
-      )}
-      {player1Choice && (
-        <div className="player-choice">
-          Player 1 chose <strong>{player1Choice.toUpperCase()}</strong> | Player 2 is{" "}
-          <strong>{player2Choice.toUpperCase()}</strong>
-        </div>
-      )}
-      {player1Choice && !winner && (
-        <div className="turn-indicator">Player {currentPlayer}'s turn</div>
-      )}
-      {winner && (
-        <div className="winner">
-          {winner} <button onClick={handleRestart}>Restart</button>
-        </div>
-      )}
-      {!winner && player1Choice && (
-        <button className="restart" onClick={handleRestart}>
-          Restart
-        </button>
-      )}
-      <div className="grid">
-        {board.map((img, index) => (
-          <div
-            key={index}
-            className="tile"
-            onClick={() => handleClick(index)}
-          >
-            <span className="tile-number">{index + 1}</span>
-            {revealed[index] && <img src={img} alt="Revealed" />}
-          </div>
-        ))}
-      </div>
+return (
+    
+<div className="container">
+<h1>ZuckMusk Game!</h1>
+
+{!playerChoice && (
+    <div className="choice-buttons">
+    <div className="player-choice-label">Choose your character:</div>
+    <button id="zuck" onClick={() => handleChoice("zuck")}>Zuckerberg</button>
+    <button onClick={() => handleChoice("musk")}>Musk</button>
     </div>
-  );
+)}
+
+{playerChoice && (
+    <div className="player-choice">
+    You chose <strong>{playerChoice.toUpperCase()}</strong>
+    </div>
+)}
+
+{winner && (
+    <div className="winner">
+    {winner} <button onClick={handleRestart}>Restart</button>
+    </div>
+)}
+
+{!winner && playerChoice && (
+    <button className="restart" onClick={handleRestart}>
+    Restart
+    </button>
+)}
+
+
+
+<div className="grid">
+{board.map((img, index) => (
+    <div
+        key={index}
+        className="tile"
+        id={`tile-${index}`}
+        onClick={() => handleClick(index)}
+    >
+    <span className="tile-number">{index + 1}</span>
+        {revealed[index] && <img src={img} alt="Revealed" />}
+    </div>
+    ))}
+    </div>
+    </div>
+);
 }
 
 export default App;
